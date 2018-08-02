@@ -63,7 +63,7 @@ def scrape_once (entriesCache, send_summary, subscribers, index_page, email_clie
     entriesCache.load()
     all_sites = sites.all()
     entries_new = sum( list(map(NewsSite.scrape, all_sites)), [] )
-    entries_added = entriesCache.update(entries_new)
+    entries_added, cache_updated = entriesCache.update(entries_new)
     if send_summary:
         notify_subscribers(email_client, False, entriesCache.entries, subscribers)
     elif entries_added:
@@ -78,10 +78,10 @@ def scrape_once (entriesCache, send_summary, subscribers, index_page, email_clie
            and (not last_summary_date or last_summary_date < today_in_china()):
             notify_subscribers(email_client, False, entriesCache.entries, subscribers)
 
-    entriesCache.dump()
-
-    page_str = make_page(entriesCache.entries, True)
-    unicode_to_file(index_page, page_str)
+    if cache_updated:
+        entriesCache.dump()
+        page_str = make_page(entriesCache.entries, True)
+        unicode_to_file(index_page, page_str)
 
 
 def main():
@@ -90,7 +90,7 @@ def main():
     parser.add_argument('--no_init_email', action="store_true")
     args = parser.parse_args()
 
-    if args.no_init_email:
+    if args.no_init_email and now_in_china.hour >= 8: # FIXME: This is twisted.
         global last_summary_date
         last_summary_date = today_in_china()
 

@@ -6,6 +6,7 @@ def deserialize_entry(dic):
     entry = NewsEntry()
     return entry.from_dict(dic)
 
+
 def cutoff_entry_date (entries):
     today = today_in_china()
     keep = datetime.timedelta(7)
@@ -16,21 +17,34 @@ def cutoff_entry_date (entries):
             e.quick_print()
     return [ e for e in entries if e.date > cutoff and e.date <= today ]
 
+
 class EntriesCache:
     def __init__(self, filename):
         self.filename = filename
 
+
     def load(self):
         serializer = load_json(self.filename)
-        entries = [ deserialize_entry(x) for x in serializer ]
-        self.entries = cutoff_entry_date(entries)
-        return
+        self.entries = [ deserialize_entry(x) for x in serializer ]
+
 
     def dump(self):
         serializer = [ entry.to_dict() for entry in self.entries ]
         dump_json(serializer, self.filename)
 
+
     def update(self, entries_new):
+        """
+        :return:
+          (entries added, True/False for whether there is any update)
+        """
+        updated = False
+
+        original_cnt = len(self.entries)
+        self.entries = cutoff_entry_date(self.entries)
+        if len(self.entries) < original_cnt:
+            updated = True
+
         entries_new = cutoff_entry_date(entries_new)
         # keep the [spot_time] in the cache!
         entries_to_add = []
@@ -40,4 +54,6 @@ class EntriesCache:
                 entries_to_add.append(entry)
         if entries_to_add:
             self.entries = self.entries + entries_to_add
-        return entries_to_add
+            updated = True
+
+        return entries_to_add, updated
