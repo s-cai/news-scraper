@@ -58,6 +58,7 @@ def notify_subscribers(email_client, is_update, entries, subscribers):
         last_summary_date = today_in_china()
 
 
+# FIXME: if send fails, the updates shouldn't be added
 def scrape_once (entriesCache, send_summary, subscribers, index_page, email_client):
     entriesCache.load()
     all_sites = sites.all()
