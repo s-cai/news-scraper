@@ -90,7 +90,7 @@ def main():
     parser.add_argument('--no_init_email', action="store_true")
     args = parser.parse_args()
 
-    if args.no_init_email and now_in_china.hour >= 8: # FIXME: This is twisted.
+    if args.no_init_email and now_in_china().hour >= 8: # FIXME: This is twisted.
         global last_summary_date
         last_summary_date = today_in_china()
 
