@@ -48,4 +48,4 @@ def make_page(entries, full_html : bool, webpage_url=None):
         last_check = '上次刷新: ' + datetime.datetime.now().isoformat()
         last_update = '最新消息: ' + _latest_spot_time(entries).isoformat()
         meta = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>'
-        return f'<html><head>{meta}</head><body>{last_check}<br>{last_update}<br><br>{blocks}</body></html>'
+        return f'<html><head>{meta}<title>要闻汇总</title></head><body>{last_check}<br>{last_update}<br><br>{blocks}</body></html>'
