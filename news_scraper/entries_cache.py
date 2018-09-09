@@ -1,6 +1,9 @@
-from .news_entry import NewsEntry
-from .util import *
 import datetime
+import logging
+
+from   .news_entry import NewsEntry
+from   .util import *
+
 
 def deserialize_entry(dic):
     entry = NewsEntry()
@@ -13,8 +16,7 @@ def cutoff_entry_date (entries):
     cutoff = today - keep
     for e in entries:
         if e.date > today:
-            print("News entry is marked to have a date later than today", today)
-            e.quick_print()
+            logging.warning(f"News entry is marked to have a date later than today {today:%Y-%m-%d}: {e}")
     return [ e for e in entries if e.date > cutoff and e.date <= today ]
 
 

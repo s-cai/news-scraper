@@ -8,6 +8,8 @@ class NewsEntry:
     def __init__ (self):
         pass
 
+
+    # FIXME: what is this...
     def set_fields (self, site_name, title, url, date, spot_time):
         self.site_name = site_name
         self.title     = title
@@ -15,6 +17,7 @@ class NewsEntry:
         self.date      = date
         self.spot_time = spot_time
         return self
+
 
     def from_parsed (self, site, title, url, date):
         self.site_name = site.name
@@ -24,20 +27,25 @@ class NewsEntry:
         self.spot_time = datetime.datetime.now()
         return self
 
-    def quick_print (self):
-        print(self.title + ' ' + self.url + ' ' + self.date.strftime(serialization_date_format))
 
     def manual_li (self):
         return '<li>[' + self.site_name + '] <a href="' + self.url + '">' + self.title + '</a>  ' + '</li>'
+
+
+    def __str__(self):
+        return f"{self.title} {self.url} {self.date.strftime(serialization_date_format)}"
+
 
     # customly defined uniqueness for set operations
     def __eq__(self, other):
         return self.title == other.title and self.site_name == other.site_name
 
+
     def __hash__(self):
         return hash(self.title) ^ hash(self.site_name)
 
-    # serialization
+
+    # serialization functions
     def to_dict(self):
         dic = {}
         dic['site_name'] = self.site_name
@@ -46,6 +54,7 @@ class NewsEntry:
         dic['date'     ] = datetime.date.strftime(self.date, serialization_date_format)
         dic['spot_time'] = datetime.datetime.strftime(self.spot_time, serialization_time_format)
         return dic
+
 
     def from_dict(self, dic):
         self.site_name = dic['site_name']

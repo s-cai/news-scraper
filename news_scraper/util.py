@@ -1,4 +1,5 @@
-from lxml import html
+import logging
+from   lxml import html
 import json
 import sys
 import datetime
@@ -17,9 +18,6 @@ def check_pid(pid):
 def unicode_to_file(filename, u):
     with open (filename, 'w') as f:
         f.write(u)
-
-def print_html (node):
-    print((html.tostring(node, encoding="utf-8")))
 
 china_tz = pytz.timezone('Asia/Shanghai')
 
@@ -53,9 +51,6 @@ def load_json(filename):
         with open(filename, 'r') as f:
             return json.load(f)
     except Exception as e:
-        # CR scai: logging
-        print('Failed to open file', filename)
-        print(str(e))
-        sys.stdout.flush()
+        logging.error('Failed to load json file {filename}', exc_info=e)
         # CR scai: make this type more general
         return []

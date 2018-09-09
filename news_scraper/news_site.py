@@ -1,7 +1,10 @@
-from .util import *
+import logging
 import requests
-from .news_entry import NewsEntry
-from .timeout import timeout
+
+from   .util import *
+from   .news_entry import NewsEntry
+from   .timeout import timeout
+
 
 class NewsSite:
     def __init__(self, name, chinese_encoding, base_url, date_format, node_xpath, parse_node):
@@ -11,6 +14,7 @@ class NewsSite:
         self.date_format      = date_format
         self.node_xpath       = node_xpath
         self.parse_node       = parse_node
+
 
     @timeout(60)
     def scrape(self):
@@ -28,8 +32,7 @@ class NewsSite:
             tree = html.fromstring(page.content)
             nodes = tree.xpath(self.node_xpath)
         except Exception as e:
-            print("unable to get site", self.name.encode('utf-8'), str(e))
-            sys.stdout.flush()
+            logging.error("unable to get site {self.name}", exc_info=e)
             return []
         entries = [ node_to_entry(node) for node in nodes ]
         entries = [ x for x in entries if x ]

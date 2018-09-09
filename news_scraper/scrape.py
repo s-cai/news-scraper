@@ -43,19 +43,13 @@ def scrape_once (entriesCache, send_summary, subscribers, index_page, email_clie
             subscribers, webpage_url=webpage_url
         )
     elif entries_added:
-        print("New entries found:")
-        for entry in entries_added: entry.quick_print()
-        sys.stdout.flush()
+        entries_text = '\n'.join(str(e) for e in entries_added)
+        logging.info(f"New entries found:\n{entries_text}")
         notify_subscribers(
             email_client, True, entries_added,
             subscribers, webpage_url=webpage_url
         )
     else:
-        notify_subscribers(
-            email_client, False, entriesCache.entries, subscribers,
-            webpage_url=webpage_url
-        )
-
         # send email every morning
         now = now_in_china()
         if now.hour >= 8 \
@@ -77,6 +71,11 @@ def main():
     parser.add_argument('--no_init_email', action="store_true")
     args = parser.parse_args()
 
+    logging.basicConfig(
+        level='INFO',
+        format='%(asctime)s [%(levelname)s] %(message)s'
+    )
+
     if args.no_init_email and now_in_china().hour >= 8: # FIXME: This is twisted.
         global last_summary_date
         last_summary_date = today_in_china()
@@ -85,9 +84,7 @@ def main():
 
     entriesCache = EntriesCache(config["cache_file"])
     while True:
-        # CR scai: logging
-        print("new scrape job", datetime.datetime.now())
-        sys.stdout.flush()
+        logging.info("new scrape job")
         try:
             scrape_once(
                 entriesCache, False,
