@@ -1,53 +1,26 @@
 #!/usr/bin/python
 
+# TODO: relative import
 from news_scraper.util import *
 from news_scraper.news_entry import NewsEntry
 from news_scraper.news_site import NewsSite
 from news_scraper.entries_cache import EntriesCache
 from news_scraper.config import load_config
+from news_scraper.webpage import make_page
 from news_scraper import sites
-import datetime
 import sys
 import argparse
 import logging
 
 
-def make_blocks(entries):
-    entries = sorted(entries, key=lambda e: (e.date, e.spot_time), reverse=True)
-    accum = ""
-    li_s = ""
-    date = None
-    for entry in entries:
-        if date and date != entry.date:
-            date_str = date.strftime('%Y-%m-%d')
-            accum += "<div><h3>%s</h3><ul>%s</ul></div>" % (date_str, li_s)
-            li_s = ""
-        date = entry.date
-        li_s += entry.manual_li()
-    # collect entries for the last date
-    date_str = date.strftime('%Y-%m-%d')
-    accum += "<div><h3>%s</h3><ul>%s</ul></div>" % (date_str, li_s)
-    return accum
-
-
-def make_page(entries, full_html):
-    blocks = make_blocks(entries)
-    if not full_html:
-        return blocks
-    else:
-        timestamp = 'last updated: ' + datetime.datetime.now().isoformat()
-        meta = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>'
-        return '<html><head>%s</head><body>%s<br><br>%s</body></html>' % (meta, timestamp, blocks)
-
-
 last_summary_date = None
 
 
-def notify_subscribers(email_client, is_update, entries, subscribers):
+def notify_subscribers(email_client, is_update, entries, subscribers, webpage_url=None):
     global last_summary_date
-    html_text = make_page(entries, False)
+    html_text = make_page(entries, False, webpage_url=webpage_url)
     if is_update:
-        subject = '[速递] %s - %s' % (entries[0].site_name, entries[0].title)
+        subject = f'[速递] {entries[0].site_name} - {entries[0].title}'
         if len(entries) > 1:
             subject += '  等%d条' % len(entries)
     else:
@@ -58,30 +31,44 @@ def notify_subscribers(email_client, is_update, entries, subscribers):
         last_summary_date = today_in_china()
 
 
-# FIXME: if send fails, the updates shouldn't be added
-def scrape_once (entriesCache, send_summary, subscribers, index_page, email_client):
+# FIXME: if send fails, the updates shouldn't be added to cache
+def scrape_once (entriesCache, send_summary, subscribers, index_page, email_client, webpage_url=None):
     entriesCache.load()
     all_sites = sites.all()
     entries_new = sum( list(map(NewsSite.scrape, all_sites)), [] )
     entries_added, cache_updated = entriesCache.update(entries_new)
     if send_summary:
-        notify_subscribers(email_client, False, entriesCache.entries, subscribers)
+        notify_subscribers(
+            email_client, False, entriesCache.entries,
+            subscribers, webpage_url=webpage_url
+        )
     elif entries_added:
         print("New entries found:")
         for entry in entries_added: entry.quick_print()
         sys.stdout.flush()
-        notify_subscribers(email_client, True, entries_added, subscribers)
+        notify_subscribers(
+            email_client, True, entries_added,
+            subscribers, webpage_url=webpage_url
+        )
     else:
+        notify_subscribers(
+            email_client, False, entriesCache.entries, subscribers,
+            webpage_url=webpage_url
+        )
+
         # send email every morning
         now = now_in_china()
         if now.hour >= 8 \
            and (not last_summary_date or last_summary_date < today_in_china()):
-            notify_subscribers(email_client, False, entriesCache.entries, subscribers)
+            notify_subscribers(
+                email_client, False, entriesCache.entries,
+                subscribers, webpage_url=webpage_url
+            )
 
-    if cache_updated:
-        entriesCache.dump()
-        page_str = make_page(entriesCache.entries, True)
-        unicode_to_file(index_page, page_str)
+    # update webpage everytime (for last_check time...)
+    entriesCache.dump()
+    page_str = make_page(entriesCache.entries, True)
+    unicode_to_file(index_page, page_str)
 
 
 def main():
@@ -104,7 +91,10 @@ def main():
         try:
             scrape_once(
                 entriesCache, False,
-                config["subscribers"], config["index_page"], config["email_client"]
+                config["subscribers"],
+                config["index_page"],
+                config["email_client"],
+                webpage_url=config.get("webpage_url")
             )
         except Exception as e:
             logging.error("scrape failure:", exc_info=e)
