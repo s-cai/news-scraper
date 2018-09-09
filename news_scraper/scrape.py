@@ -1,16 +1,16 @@
 #!/usr/bin/python
 
-# TODO: relative import
-from news_scraper.util import *
-from news_scraper.news_entry import NewsEntry
-from news_scraper.news_site import NewsSite
-from news_scraper.entries_cache import EntriesCache
-from news_scraper.config import load_config
-from news_scraper.webpage import make_page
-from news_scraper import sites
-import sys
 import argparse
 import logging
+import sys
+
+from   . import sites
+from   .config import load_config
+from   .entries_cache import EntriesCache
+from   .news_entry import NewsEntry
+from   .news_site import NewsSite
+from   .webpage import make_page
+from   .util import *
 
 
 last_summary_date = None
