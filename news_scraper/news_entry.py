@@ -24,7 +24,7 @@ class NewsEntry:
         self.title     = str(title.encode(site.chinese_encoding), 'utf-8')
         self.url       = absolute_url(site.base_url, url)
         self.date      = datetime.datetime.strptime(date, site.date_format).date()
-        self.spot_time = datetime.datetime.now()
+        self.spot_time = now_in_china()
         return self
 
 

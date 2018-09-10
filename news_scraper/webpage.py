@@ -9,6 +9,9 @@ use more pythonic way of constructing the html.
 from   .util import now_in_china
 
 
+TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+
 def make_blocks(entries):
     entries = sorted(entries, key=lambda e: (e.date, e.spot_time), reverse=True)
     accum = ""
@@ -45,7 +48,7 @@ def make_page(entries, full_html : bool, webpage_url=None):
         else:
             return blocks
     else:
-        last_check = '上次刷新: ' + now_in_china().isoformat()
-        last_update = '最新消息: ' + _latest_spot_time(entries).isoformat()
+        last_check = '上次刷新: ' + now_in_china().strftime(TIME_FORMAT)
+        last_update = '最新消息: ' + _latest_spot_time(entries).strftime(TIME_FORMAT)
         meta = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>'
         return f'<html><head>{meta}<title>要闻汇总</title></head><body>{last_check}<br>{last_update}<br><br>{blocks}</body></html>'
