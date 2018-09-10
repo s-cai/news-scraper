@@ -6,7 +6,7 @@ directly.  This is a bit hacky and we may want to eventually
 use more pythonic way of constructing the html.
 """
 
-import datetime
+from   .util import now_in_china
 
 
 def make_blocks(entries):
@@ -45,7 +45,7 @@ def make_page(entries, full_html : bool, webpage_url=None):
         else:
             return blocks
     else:
-        last_check = '上次刷新: ' + datetime.datetime.now().isoformat()
+        last_check = '上次刷新: ' + now_in_china().isoformat()
         last_update = '最新消息: ' + _latest_spot_time(entries).isoformat()
         meta = '<meta http-equiv="Content-Type" content="text/html; charset=utf-8"></meta>'
         return f'<html><head>{meta}<title>要闻汇总</title></head><body>{last_check}<br>{last_update}<br><br>{blocks}</body></html>'
