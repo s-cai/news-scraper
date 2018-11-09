@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from .news_entry import NewsEntry
 from .news_site import NewsSite
 
@@ -38,7 +36,7 @@ def CaiZhengBu():
     return [ NewsSite(name, 'utf-8', url, date_format, node_xpath, parse_node) ]
 # end of CaiZhengBu
 
-def NongYeBu ():
+def NongYeBu():
     def parse_node(node):
         code  = node.xpath('./span[1]/a/script/text()')[0]
         url   = node.xpath('./span[1]/a/@href')[0]
@@ -68,7 +66,7 @@ def KeJiBu ():
 # end of KeJiBu
 
 # TODO: Better handle of multi-section
-def ShangWuBu ():
+def ShangWuBu():
     def parse_node(node):
         title = node.xpath('./a/text()')[0]
         url   = node.xpath('./a/@href')[0]
@@ -82,7 +80,7 @@ def ShangWuBu ():
     return [ NewsSite(name, 'utf-8', url, date_format, node_xpath, parse_node) ]
 # end of ShangWuBu
 
-def GuoTuZiYuanBu ():
+def GuoTuZiYuanBu():
     def parse_node(node):
         title = node.xpath('./a/text()')
         if len(title) == 0: return None
@@ -98,7 +96,7 @@ def GuoTuZiYuanBu ():
     return [ NewsSite(name, 'utf-8', url, date_format, node_xpath, parse_node) ]
 # end of GuoTuZiYuanBu
 
-def ZhengFuWang ():
+def ZhengFuWang():
     def parse_node(node):
         title = node.xpath('./a/text()')[0]
         url   = node.xpath('./a/@href')[0]
@@ -112,5 +110,31 @@ def ZhengFuWang ():
     return [ NewsSite(name, 'utf-8', url, date_format, node_xpath, parse_node) ]
 # end of ZhengFuWang
 
+def ZhengJianHui():
+    def parse_node(node):
+        anchor = node.xpath('./a')[0]
+        title = anchor.attrib['title']
+        url   = anchor.attrib['href']
+        date = node.xpath('./span/text()')[0]
+        return (title, url, date)
+
+    name = '中国证监会'
+    url = 'http://www.csrc.gov.cn/pub/newsite/zjhxwfb/xwdd/'
+    date_format = '%Y-%m-%d'
+    node_xpath = '//div[@class="er_main"]/div[@class="er_right"]//li'
+    return [ NewsSite(name, 'utf-8', url, date_format, node_xpath, parse_node) ]
+# end of ZhengJianHui
+
 def all ():
-    return ZhengFuWang() + GuoTuZiYuanBu() + ShangWuBu() + KeJiBu() + NongYeBu() + CaiZhengBu() + FaGaiWei()
+    return (
+        ZhengJianHui() +
+        ZhengFuWang() +
+        GuoTuZiYuanBu() +
+        ShangWuBu() +
+        KeJiBu() +
+        NongYeBu() +
+        CaiZhengBu() +
+        FaGaiWei()
+    )
+
+

@@ -32,7 +32,7 @@ class NewsSite:
             tree = html.fromstring(page.content)
             nodes = tree.xpath(self.node_xpath)
         except Exception as e:
-            logging.error("unable to get site {self.name}", exc_info=e)
+            logging.error(f"unable to get site {self.name}", exc_info=True)
             return []
         entries = [ node_to_entry(node) for node in nodes ]
         entries = [ x for x in entries if x ]
