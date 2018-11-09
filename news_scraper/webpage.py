@@ -33,7 +33,7 @@ def _latest_spot_time(entries):
 
 
 def _add_web_link(html, webpage_url):
-    return f'<b>新：<a href="{webpage_url}">网页版要闻汇总</a> (链接打不开的话欢迎回复邮件告诉我)</b><br>{html}'
+    return f'<b><a href="{webpage_url}">网页版要闻汇总</a> (链接打不开的话欢迎回复邮件告诉我)</b><br>{html}'
 
 
 def make_page(entries, full_html : bool, webpage_url=None):
