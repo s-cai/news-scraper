@@ -31,22 +31,21 @@ def notify_subscribers(email_client, is_update, entries, subscribers, webpage_ur
         last_summary_date = today_in_china()
 
 
-# FIXME: if send fails, the updates shouldn't be added to cache
 def scrape_once (entriesCache, send_summary, subscribers, index_page, email_client, webpage_url=None):
     entriesCache.load()
     all_sites = sites.all()
     entries_new = sum( list(map(NewsSite.scrape, all_sites)), [] )
     entries_added, cache_updated = entriesCache.update(entries_new)
-    if send_summary:
-        notify_subscribers(
-            email_client, False, entriesCache.entries,
-            subscribers, webpage_url=webpage_url
-        )
-    elif entries_added:
+    if entries_added:
         entries_text = '\n'.join(str(e) for e in entries_added)
         logging.info(f"New entries found:\n{entries_text}")
         notify_subscribers(
             email_client, True, entries_added,
+            subscribers, webpage_url=webpage_url
+        )
+    elif send_summary:
+        notify_subscribers(
+            email_client, False, entriesCache.entries,
             subscribers, webpage_url=webpage_url
         )
     else:
@@ -59,8 +58,10 @@ def scrape_once (entriesCache, send_summary, subscribers, index_page, email_clie
                 subscribers, webpage_url=webpage_url
             )
 
-    # update webpage everytime (for last_check time...)
+    # Dump cache right after send success.
+    # TODO: failure here will cause spam!!
     entriesCache.dump()
+    # update webpage everytime (for last_check time...)
     page_str = make_page(entriesCache.entries, True)
     unicode_to_file(index_page, page_str)
 

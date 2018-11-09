@@ -13,6 +13,9 @@ TIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
 
 def make_blocks(entries):
+    # FIXME: This will be a problem if we mix new entries together with cached entries,
+    # because new entries are localized, and cached ones don't carry timezone explicitly
+    # with them.
     entries = sorted(entries, key=lambda e: (e.date, e.spot_time), reverse=True)
     accum = ""
     li_s = ""
@@ -29,6 +32,7 @@ def make_blocks(entries):
 
 
 def _latest_spot_time(entries):
+    # FIXME: same as FIXME above.
     return max(e.spot_time for e in entries)
 
 
