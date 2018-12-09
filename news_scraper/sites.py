@@ -115,7 +115,13 @@ def ZhengJianHui():
         anchor = node.xpath('./a')[0]
         title = anchor.attrib['title']
         url   = anchor.attrib['href']
-        date = node.xpath('./span/text()')[0]
+        try:
+            date = node.xpath('./span/text()')[0]
+        except IndexError:
+            # This is just because of a terrible lxml bug:
+            # looks like very occassionally a normal input
+            # will be parsed into ./a/span
+            date = anchor.xpath('./span/text()')[0]
         return (title, url, date)
 
     name = '中国证监会'
