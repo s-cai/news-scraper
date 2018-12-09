@@ -61,5 +61,7 @@ class NewsEntry:
         self.title     = dic['title']
         self.url       = dic['url']
         self.date      = datetime.datetime.strptime(dic['date'], serialization_date_format).date()
-        self.spot_time = datetime.datetime.strptime(dic['spot_time'], serialization_time_format)
+        # The best practice is to include tz in the serialization,
+        # but I don't want to waster the time to look it up...
+        self.spot_time = china_tz.localize(datetime.datetime.strptime(dic['spot_time'], serialization_time_format))
         return self
